@@ -150,6 +150,7 @@ void FeatureTracker::readImage(const cv::Mat &_img, double _cur_time)
         ROS_DEBUG("set mask costs %fms", t_m.toc());
 
         // 4.3 提取新的特征点 (待发布的frame至少需要150个特征点)
+        // 如果跟着点少于阈值，采取最新帧提取新的特征点，保证跟踪质量
         ROS_DEBUG("detect feature begins");
         TicToc t_t;
         int n_max_cnt = MAX_CNT - static_cast<int>(forw_pts.size());
@@ -161,6 +162,7 @@ void FeatureTracker::readImage(const cv::Mat &_img, double _cur_time)
                 cout << "mask type wrong " << endl;
             if (mask.size() != forw_img.size())
                 cout << "wrong size " << endl;
+            //根据指定据量，指定的掩膜区域提取新特征点，已有特征的区域不用再提取，保证特征点均匀分布
             cv::goodFeaturesToTrack(forw_img, n_pts, MAX_CNT - forw_pts.size(), 0.01, MIN_DIST, mask);
         }
         else
@@ -169,6 +171,7 @@ void FeatureTracker::readImage(const cv::Mat &_img, double _cur_time)
 
         ROS_DEBUG("add feature begins");
         TicToc t_a;
+        //新提取的特征添加到向量中
         addPoints();
         ROS_DEBUG("selectFeature costs: %fms", t_a.toc());
     }
@@ -179,6 +182,7 @@ void FeatureTracker::readImage(const cv::Mat &_img, double _cur_time)
     prev_un_pts = cur_un_pts;
     cur_img = forw_img;
     cur_pts = forw_pts;
+    //去畸变放特征点中，节省耗时，
     undistortedPoints(); // 去畸变, 归一化坐标, 计算速度
     prev_time = cur_time;
 }
@@ -308,7 +312,7 @@ void FeatureTracker::undistortedPoints()
                 it = prev_un_pts_map.find(ids[i]); // 在上一帧的位置
                 if (it != prev_un_pts_map.end())
                 {
-                    // 计算特征点的速度
+                    // 计算特征点的速度  --> imu和相机时间偏移标定 （相机时间偏移，优化）
                     double v_x = (cur_un_pts[i].x - it->second.x) / dt;
                     double v_y = (cur_un_pts[i].y - it->second.y) / dt;
                     pts_velocity.push_back(cv::Point2f(v_x, v_y));

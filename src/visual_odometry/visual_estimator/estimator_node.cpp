@@ -75,6 +75,7 @@ void predict(const sensor_msgs::ImuConstPtr &imu_msg)
     Eigen::Vector3d angular_velocity{rx, ry, rz};
 
     // 中值积分计算运动模型PVQ (第2讲P38)
+    // 机体量acc_0    tmp_Q* =》转移到世界坐标系un_acc_0
     Eigen::Vector3d un_acc_0 = tmp_Q * (acc_0 - tmp_Ba) - estimator.g;  // a0
     Eigen::Vector3d un_gyr = 0.5 * (gyr_0 + angular_velocity) - tmp_Bg; // w
     tmp_Q = tmp_Q * Utility::deltaQ(un_gyr * dt);                       // Q
@@ -169,7 +170,7 @@ void imu_callback(const sensor_msgs::ImuConstPtr &imu_msg)
         // 使用最新的imu数据更新PVQ
         predict(imu_msg);
         std_msgs::Header header = imu_msg->header;
-        // 将最新的PVQ发布出去 (vins odom)
+        // 将最新的PVQ发布出去 (vins odom)  （和IMU同频率）（高频里程计）
         if (estimator.solver_flag == Estimator::SolverFlag::NON_LINEAR)
             pubLatestOdometry(tmp_P, tmp_Q, tmp_V, header, estimator.failureCount);
     }
@@ -290,7 +291,7 @@ void process()
                     rx = w1 * rx + w2 * imu_msg->angular_velocity.x;
                     ry = w1 * ry + w2 * imu_msg->angular_velocity.y;
                     rz = w1 * rz + w2 * imu_msg->angular_velocity.z;
-                    // 预积分到图像时刻
+                    // 预积分到图像时刻, 为视觉三角化及重投影提供位姿初值
                     estimator.processIMU(dt_1, Vector3d(dx, dy, dz), Vector3d(rx, ry, rz));
                     //printf("dimu: dt:%f a: %f %f %f w: %f %f %f\n",dt_1, dx, dy, dz, rx, ry, rz);
                 }

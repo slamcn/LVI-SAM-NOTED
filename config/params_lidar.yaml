@@ -8,7 +8,7 @@ lvi_sam:
   imuTopic: "/imu_raw"                         # IMU data
 
   # Heading
-  useImuHeadingInitialization: true          # if using GPS data, set to "true"
+  useImuHeadingInitialization: true          # if using GPS data, set to "true"  是否提供yaw
   
   # Export settings
   savePCD: false                              # https://github.com/TixiaoShan/LIO-SAM/issues/3
@@ -57,7 +57,7 @@ lvi_sam:
   surroundingKeyframeDensity: 2.0               # meters, downsample surrounding keyframe poses   
   surroundingKeyframeSearchRadius: 50.0         # meters, within n meters scan-to-map optimization (when loop closure disabled)
 
-  # Loop closure
+  # Loop closure            闭环候选帧形成submap, 再按照匹配
   loopClosureEnableFlag: true                   # 是否通过距离进行闭环检测
   surroundingKeyframeSize: 25                   # submap size (when loop closure enabled)
   historyKeyframeSearchRadius: 20.0             # meters, key frame that is within n meters from current pose will be considerd for loop closure

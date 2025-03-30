@@ -246,8 +246,8 @@ public:
                                   features_3d_sphere->points[i].y,
                                   features_3d_sphere->points[i].z);
 
-                // 估计视觉特征点的深度 s
-                Eigen::Vector3f N = (A - B).cross(B - C);
+                // 估计视觉特征点的深度 s 平面一点与法向量的交点
+                Eigen::Vector3f N = (A - B).cross(B - C);//平面法向量
                 float s = (N(0) * A(0) + N(1) * A(1) + N(2) * A(2))  // (BA X CB) * OA
                         / (N(0) * V(0) + N(1) * V(1) + N(2) * V(2)); // (BA X CB) * OV
 
@@ -266,7 +266,7 @@ public:
                 features_3d_sphere->points[i].y *= s;
                 features_3d_sphere->points[i].z *= s;
                 // the obtained depth here is for unit sphere, VINS estimator needs depth for normalized feature (by value z), (lidar x = camera z)
-                features_3d_sphere->points[i].intensity = features_3d_sphere->points[i].x; // ???
+                features_3d_sphere->points[i].intensity = features_3d_sphere->points[i].x; //  相机深度 特征深度 ???
             }
         }
 

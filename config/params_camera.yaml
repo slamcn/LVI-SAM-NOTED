@@ -13,7 +13,7 @@ use_lidar: 1                     # whether use depth info from lidar or not
 lidar_skip: 3                    # skip this amount of scans
 align_camera_lidar_estimation: 1 # align camera and lidar estimation for visualization
 
-# lidar to camera extrinsic
+# lidar to camera extrinsic  Base_frame: lidar    ==> transform lidar@laser -> lidar@camera
 lidar_to_cam_tx: 0.05
 lidar_to_cam_ty: -0.07
 lidar_to_cam_tz: -0.07
@@ -53,7 +53,7 @@ g_norm: 9.805       #
 estimate_extrinsic: 0   # 0  Have an accurate extrinsic parameters. We will trust the following imu^R_cam, imu^T_cam, don't change it.
                         # 1  Have an initial guess about extrinsic parameters. We will optimize around your initial guess.
                         # 2  Don't know anything about extrinsic parameters. You don't need to give R,T. We will try to calibrate it. Do some rotation movement at beginning. 
-#Rotation from camera frame to imu frame, imu^R_cam
+#Rotation from camera frame to imu frame, imu^R_cam   base_frame is IMU
 extrinsicRotation: !!opencv-matrix
    rows: 3
    cols: 3
@@ -93,8 +93,8 @@ rolling_shutter_tr: 0    # unit: s. rolling shutter read out time per frame (fro
 
 #loop closure parameters
 loop_closure: 1                    # start loop closure
-skip_time: 0.0
-skip_dist: 0.0
+skip_time: 0.0        #0.5 
+skip_dist: 0.0        #1.0
 debug_image: 0                      # save raw image in loop detector for visualization prupose; you can close this function by setting 0 
 match_image_scale: 0.5
 vocabulary_file: "/config/brief_k10L6.bin"
